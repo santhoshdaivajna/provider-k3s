@@ -77,10 +77,16 @@ docker:
         ENV INSTALL_K3S_VERSION=${K3S_VERSION}
     END
 
+     # add support for airgap to k3s provider
+        # ref: https://docs.k3s.io/installation/airgap
+        RUN mkdir -p /var/lib/rancher/k3s/agent/images
+        RUN curl -L --output /var/lib/rancher/k3s/agent/images/images.tar "https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-airgap-images-amd64.tar"
+
+
     ENV INSTALL_K3S_BIN_DIR="/usr/bin"
     RUN curl -sfL https://get.k3s.io > installer.sh \
-        && INSTALL_K3S_SKIP_START="true" INSTALL_K3S_SKIP_ENABLE="true" bash installer.sh \
-        && INSTALL_K3S_SKIP_START="true" INSTALL_K3S_SKIP_ENABLE="true" bash installer.sh agent \
+        && INSTALL_K3S_SKIP_START="true" INSTALL_K3S_SKIP_ENABLE="true" INSTALL_K3S_SKIP_DOWNLOAD="true" bash installer.sh \
+        && INSTALL_K3S_SKIP_START="true" INSTALL_K3S_SKIP_ENABLE="true" INSTALL_K3S_SKIP_DOWNLOAD="true" bash installer.sh agent \
         && rm -rf installer.sh
 
     RUN curl -sL https://github.com/etcd-io/etcd/releases/download/v3.5.5/etcd-v3.5.5-linux-amd64.tar.gz | sudo tar -zxv --strip-components=1 -C /usr/local/bin
@@ -95,10 +101,6 @@ docker:
     RUN envsubst >/etc/os-release </usr/lib/os-release.tmpl
     COPY scripts /opt/k3s/scripts
 
-    # add support for airgap to k3s provider
-    # ref: https://docs.k3s.io/installation/airgap
-    RUN mkdir -p /var/lib/rancher/k3s/agent/images
-    RUN curl -L --output /var/lib/rancher/k3s/agent/images/images.tar "https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-airgap-images-amd64.tar"
 
     SAVE IMAGE --push $IMAGE_REPOSITORY/${BASE_IMAGE_NAME}-k3s:${K3S_VERSION_TAG}
     SAVE IMAGE --push $IMAGE_REPOSITORY/${BASE_IMAGE_NAME}-k3s:${K3S_VERSION_TAG}_${VERSION}
