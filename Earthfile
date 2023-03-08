@@ -78,10 +78,12 @@ docker:
     END
 
      # add support for airgap to k3s provider
-        # ref: https://docs.k3s.io/installation/airgap
-        RUN mkdir -p /var/lib/rancher/k3s/agent/images
-        RUN curl -L --output /var/lib/rancher/k3s/agent/images/images.tar "https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-airgap-images-amd64.tar"
+     # ref: https://docs.k3s.io/installation/airgap
+     RUN mkdir -p /var/lib/rancher/k3s/agent/images
+     RUN curl -L --output /var/lib/rancher/k3s/agent/images/images.tar "https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s-airgap-images-amd64.tar"
 
+    RUN curl -L --output /usr/local/bin/k3s "https://github.com/k3s-io/k3s/releases/download/${K3S_VERSION}/k3s"
+    RUN chmod +x /usr/local/bin/k3s
 
     ENV INSTALL_K3S_BIN_DIR="/usr/bin"
     RUN curl -sfL https://get.k3s.io > installer.sh \
